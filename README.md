@@ -4,4 +4,4 @@ An example flutter plugin for linux which shows battery percentage level and tec
 
 ## Example App on Linux
 
-<img src="https://imgur.com/MRwVfn1.png" height="500">
+![img](https://imgur.com/MRwVfn1.png)
