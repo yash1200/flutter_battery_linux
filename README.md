@@ -1,4 +1,4 @@
-# battery
+# flutter_battery_info
 
 An example flutter plugin for linux which shows battery percentage level and technology in the linux system.
 
