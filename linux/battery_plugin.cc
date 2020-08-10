@@ -17,6 +17,17 @@ struct _BatteryPlugin
 
 G_DEFINE_TYPE(BatteryPlugin, battery_plugin, g_object_get_type())
 
+// Function to get information from linux file system.
+string getFileData(string fileName)
+{
+  string data;
+  ifstream file;
+  file.open("/sys/class/power_supply/BAT1/" + fileName);
+  file >> data;
+  file.close();
+  return data;
+}
+
 // Called when a method call is received from Flutter.
 static void battery_plugin_handle_method_call(
     BatteryPlugin *self,
@@ -36,29 +47,16 @@ static void battery_plugin_handle_method_call(
   }
   else if (strcmp(method, "getBatteryData") == 0)
   {
+    // Initialize the map.
     g_autoptr(FlValue) batteryData = fl_value_new_map();
-    string command = "cat /sys/class/power_supply/BAT1/capacity";
-    char buffer[256];
-    FILE* pipe = popen(command.c_str(), "r");
-    while (!feof(pipe))
-    {
-      if (fgets(buffer, 128, pipe) != NULL)
-      {
-        fl_value_set(batteryData, fl_value_new_string("capacity"), fl_value_new_string(buffer));
-      }
-    }
-    pclose(pipe);
 
-    command = "cat /sys/class/power_supply/BAT1/technology";
-    pipe = popen(command.c_str(), "r");
-    while (!feof(pipe))
-    {
-      if (fgets(buffer, 128, pipe) != NULL)
-      {
-        fl_value_set(batteryData, fl_value_new_string("technology"), fl_value_new_string(buffer));
-      }
-    }
-    pclose(pipe);
+    // Getting capacity of battery.
+    string data = getFileData("capacity");
+    fl_value_set(batteryData, fl_value_new_string("capacity"), fl_value_new_string(data.c_str()));
+
+    // Getting technology data.
+    data = getFileData("technology");
+    fl_value_set(batteryData, fl_value_new_string("technology"), fl_value_new_string(data.c_str()));
 
     response = FL_METHOD_RESPONSE(fl_method_success_response_new(batteryData));
   }
@@ -105,3 +103,4 @@ void battery_plugin_register_with_registrar(FlPluginRegistrar *registrar)
 
   g_object_unref(plugin);
 }
+
